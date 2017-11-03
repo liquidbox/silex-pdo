@@ -1,0 +1,7 @@
+nbproject/
+var/
+vendor/
+composer.lock
+coverage.xml
+.php_cs.cache
+

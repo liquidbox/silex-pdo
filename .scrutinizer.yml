@@ -1,0 +1,49 @@
+build:
+    environment:
+        postgresql: true
+    dependencies:
+        before:
+            - mysql --execute="CREATE DATABASE IF NOT EXISTS test; CREATE USER 'liquidbox'@'localhost' IDENTIFIED BY 'liquidbox';"
+            - psql --command="CREATE DATABASE test TEMPLATE template0;" --command="CREATE ROLE liquidbox CREATEDB CREATEROLE LOGIN PASSWORD 'liquidbox';"
+    tests:
+        override:
+            -
+                command: vendor/bin/phpunit --coverage-clover=coverage.xml
+                coverage:
+                    file: coverage.xml
+                    format: clover
+    nodes:
+        'PHP 5.4':
+            environment:
+                php: '5.4'
+        'PHP 5.5':
+            environment:
+                php: '5.5'
+        'PHP 5.6':
+            environment:
+                php: '5.6'
+        'PHP 7.0':
+            environment:
+                php: '7.0'
+        'PHP 7.1':
+            environment:
+                php: '7.1'
+        HHVM:
+            environment:
+                php: hhvm
+            tests:
+                override:
+                    - vendor/bin/phpunit
+filter:
+    excluded_paths:
+        - tests/
+checks:
+    php:
+        code_rating: true
+        duplication: true
+tools:
+    php_code_sniffer:
+        enabled: true
+        config:
+            standard: PSR2
+    php_code_coverage: true

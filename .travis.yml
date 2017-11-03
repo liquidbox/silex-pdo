@@ -1,0 +1,20 @@
+before_install:
+  - mysql --execute="CREATE DATABASE IF NOT EXISTS test; CREATE USER 'liquidbox'@'localhost' IDENTIFIED BY 'liquidbox';"
+install:
+  - composer install --dev
+before_script:
+  - psql --command="CREATE DATABASE test TEMPLATE template0;" --command="CREATE ROLE liquidbox CREATEDB CREATEROLE LOGIN PASSWORD 'liquidbox';" --username=postgres
+script:
+  - vendor/bin/php-cs-fixer --diff --dry-run --verbose fix
+  - vendor/bin/phpunit
+services:
+  - mysql
+  - postgresql
+language: php
+php:
+  - '5.4'
+  - '5.5'
+  - '5.6'
+  - '7.0'
+  - '7.1'
+  - hhvm
