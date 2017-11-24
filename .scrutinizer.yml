@@ -13,9 +13,6 @@ build:
                     file: coverage.xml
                     format: clover
     nodes:
-        'PHP 5.4':
-            environment:
-                php: '5.4'
         'PHP 5.5':
             environment:
                 php: '5.5'

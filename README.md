@@ -5,11 +5,11 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/liquidbox/silex-pdo/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/liquidbox/silex-pdo/?branch=master)
 [![Packagist](https://img.shields.io/packagist/dt/liquidbox/silex-pdo.svg)](https://packagist.org/packages/liquidbox/silex-pdo)
 
-You are reading the documentation for Silex 1.x.
+You are reading the documentation for Silex 2.x. Switch to the documentation for Silex [1.x](../v1.0.0/README.md).
 
 # PHP Data Objects
 
-The <em>PdoServiceProvider</em> provides integration with the [PHP Data Objects (PDO)](http://php.net/manual/en/intro.pdo.php) extension.
+The <em>PdoServiceProvider</em> provides integration with the [PHP Data Objects (PDO)](http://php.net/manual/intro.pdo.php) extension.
 
 ## Parameters
 
@@ -25,7 +25,7 @@ The parameters <code>pdo.driver</code> and <code>pdo.connection</code> are ignor
 
 ## Services
 
-* <strong>pdo</strong>: The [<code>PDO</code>](http://php.net/manual/en/class.pdo.php) connection instance. The main way of interacting with PDO.
+* <strong>pdo</strong>: The [<code>PDO</code>](http://php.net/manual/class.pdo.php) connection instance. The main way of interacting with PDO.
 * <strong>pdo.connections</strong>: The collection of PDO connection instances. See section on [using multiple databases](#using-multiple-databases) for details.
 * <strong>pdo.connect</strong>: Factory for <code>PDO</code> connection instances.
 
@@ -89,7 +89,7 @@ The services <code>pdo</code> and <code>pdo.connections</code> will be renamed <
 Add PDO as a dependency:
 
 ```shell
-composer require liquidbox/silex-pdo:^1.0
+composer require liquidbox/silex-pdo:^2.0
 ```
 
 ## Usage
@@ -218,4 +218,4 @@ $pdoStatement->execute(array(175, 'yellow'));
 $yellow = $pdoStatement->fetchAll();
 ```
 
-For more information, check out the [official PDO documentation](http://php.net/manual/en/book.pdo.php).
+For more information, check out the [official PDO documentation](http://php.net/manual/book.pdo.php).

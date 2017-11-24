@@ -2,14 +2,14 @@
 /**
  * PDO service provider for the Silex micro-framework.
  *
- * @see http://php.net/manual/en/book.pdo.php
+ * @see http://php.net/manual/book.pdo.php
  */
 
 namespace LiquidBox\Silex\Provider;
 
 use PDO;
-use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 
 /**
  * PDO Provider.
@@ -92,17 +92,17 @@ class PdoServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * @param \Silex\Application $app
-     * @param string             $name
+     * @param \Pimple\Container $app
+     * @param string            $name
      *
      * @return string
      */
-    private function getArg(Application $app, $name)
+    private function getArg(Container $app, $name)
     {
         return isset($this->args[$name]) ? $this->args[$name] : $this->getDefaultArg($app, $name);
     }
 
-    private function getArgDsn(Application $app)
+    private function getArgDsn(Container $app)
     {
         if (!empty($this->args['dsn'])) {
             return $this->args['dsn'];
@@ -115,12 +115,12 @@ class PdoServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * @param \Silex\Application $app
-     * @param string             $name
+     * @param \Pimple\Container $app
+     * @param string            $name
      *
      * @return string|array
      */
-    private function getDefaultArg(Application $app, $name)
+    private function getDefaultArg(Container $app, $name)
     {
         if (!isset($this->defaultArgs[$name])) {
             $this->setDefaultArg($app, $name);
@@ -129,7 +129,7 @@ class PdoServiceProvider implements ServiceProviderInterface
         return $this->defaultArgs[$name];
     }
 
-    private function loadParameters(Application $app)
+    private function loadParameters(Container $app)
     {
         if ($this->isLoaded) {
             return;
@@ -145,7 +145,7 @@ class PdoServiceProvider implements ServiceProviderInterface
         }
     }
 
-    private function loadSingletonParameters(Application $app)
+    private function loadSingletonParameters(Container $app)
     {
         $this->parameters[0] = array();
 
@@ -183,36 +183,29 @@ class PdoServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * @param \Silex\Application $app
-     * @param string             $name
+     * @param \Pimple\Container $app
+     * @param string            $name
      */
-    private function setDefaultArg(Application $app, $name)
+    private function setDefaultArg(Container $app, $name)
     {
-        static $args = array('driver' => 'mysql', 'attributes' => array(), 'options' => array());
-
-        $this->defaultArgs[$name] = empty($app['pdo.' . $name]) ? $args[$name] : $app['pdo.' . $name];
+        $this->defaultArgs[$name] = empty($app['pdo.' . $name]) ?
+            array('driver' => 'mysql', 'attributes' => array(), 'options' => array())[$name] :
+            $app['pdo.' . $name];
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
-    public function boot(Application $app)
+    public function register(Container $app)
     {
-    }
-
-    public function register(Application $app)
-    {
-        $app[$this->id] = $app->share(function () use ($app) {
+        $app[$this->id] = function () use ($app) {
             $this->loadParameters($app);
 
             return $app[$this->instances][$this->defaultConnection];
-        });
-        $app[$this->instances] = $app->share(function () use ($app) {
+        };
+        $app[$this->instances] = function () use ($app) {
             $this->loadParameters($app);
 
-            $instances = new \Pimple();
+            $instances = new Container();
             foreach ($this->parameters as $connection => $this->args) {
-                $instances[$connection] = $instances->share(function () use ($app) {
+                $instances[$connection] = function () use ($app) {
                     return $app['pdo.connect'](
                         $this->getArgDsn($app),
                         $this->getArg($app, 'username'),
@@ -220,11 +213,11 @@ class PdoServiceProvider implements ServiceProviderInterface
                         $this->getArg($app, 'options'),
                         $this->getArg($app, 'attributes')
                     );
-                });
+                };
             }
 
             return $instances;
-        });
+        };
 
         $app['pdo.connect'] = $app->protect(function (
             $dsn,
