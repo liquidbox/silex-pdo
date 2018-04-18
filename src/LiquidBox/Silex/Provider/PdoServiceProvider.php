@@ -204,8 +204,9 @@ class PdoServiceProvider implements ServiceProviderInterface
             $this->loadParameters($app);
 
             $instances = new Container();
-            foreach ($this->parameters as $connection => $this->args) {
-                $instances[$connection] = function () use ($app) {
+            foreach ($this->parameters as $connection => $args) {
+                $instances[$connection] = function () use ($app, $args) {
+                    $this->args = $args;
                     return $app['pdo.connect'](
                         $this->getArgDsn($app),
                         $this->getArg($app, 'username'),
