@@ -268,7 +268,7 @@ class PdoServiceProvider implements ServiceProviderInterface
             array $attributes = array(),
             $prefix = ''
         ) use ($app) {
-            $pdo = new PDO(
+            $pdo = new PDOExt(
                 is_array($dsn) ? $this->buildDsn($this->getDefaultArg($app, 'driver'), $dsn) : $dsn,
                 $username,
                 $password,
