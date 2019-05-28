@@ -10,7 +10,7 @@ namespace LiquidBox\Silex\Provider;
 use PDO;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use LegoW\ReconnectingPDO;
+use LegoW\ReconnectingPDO\ReconnectingPDO;
 
 class PDOExt extends ReconnectingPDO
 {
