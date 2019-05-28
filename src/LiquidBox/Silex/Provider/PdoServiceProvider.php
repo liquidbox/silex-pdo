@@ -10,6 +10,43 @@ namespace LiquidBox\Silex\Provider;
 use PDO;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use LegoW\ReconnectingPDO\ReconnectingPDO;
+
+class PDOExt extends ReconnectingPDO
+{
+    protected $_table_prefix;
+    public function __construct($dsn, $user = null, $password = null, $driver_options = array(), $prefix = null)
+    {
+        $this->_table_prefix = $prefix ?? '';
+        parent::__construct($dsn, $user, $password, $driver_options);
+    }
+
+    public function exec($statement)
+    {
+        $statement = $this->_tablePrefix($statement);
+        return parent::exec($statement);
+    }
+    public function prepare($statement, $driver_options = array())
+    {
+        $statement = $this->_tablePrefix($statement);
+        return parent::prepare($statement, $driver_options);
+    }
+    public function query($statement)
+    {
+        $statement = $this->_tablePrefix($statement);
+        $args      = func_get_args();
+        if (count($args) > 1) {
+            return call_user_func_array(array($this, 'parent::query'), $args);
+        } else {
+            return parent::query($statement);
+        }
+    }
+    protected function _tablePrefix($statement)
+    {
+      $statement  = str_replace("prfx_", $this->_table_prefix, $statement);
+  		return $statement;
+    }
+}
 
 /**
  * PDO Provider.
@@ -161,6 +198,9 @@ class PdoServiceProvider implements ServiceProviderInterface
         if (!empty($app['pdo.password'])) {
             $this->parameters[0]['password'] = $app['pdo.password'];
         }
+        if (!empty($app['pdo.prefix'])) {
+            $this->parameters[0]['prefix'] = $app['pdo.prefix'];
+        }
     }
 
     /**
@@ -204,14 +244,16 @@ class PdoServiceProvider implements ServiceProviderInterface
             $this->loadParameters($app);
 
             $instances = new Container();
-            foreach ($this->parameters as $connection => $this->args) {
-                $instances[$connection] = function () use ($app) {
+            foreach ($this->parameters as $connection => $args) {
+                $instances[$connection] = function () use ($app, $args) {
+                    $this->args = $args;
                     return $app['pdo.connect'](
                         $this->getArgDsn($app),
                         $this->getArg($app, 'username'),
                         $this->getArg($app, 'password'),
                         $this->getArg($app, 'options'),
-                        $this->getArg($app, 'attributes')
+                        $this->getArg($app, 'attributes'),
+                        $this->getArg($app, 'prefix')
                     );
                 };
             }
@@ -224,13 +266,15 @@ class PdoServiceProvider implements ServiceProviderInterface
             $username = '',
             $password = '',
             array $options = array(),
-            array $attributes = array()
+            array $attributes = array(),
+            $prefix = ''
         ) use ($app) {
-            $pdo = new PDO(
+            $pdo = new PDOExt(
                 is_array($dsn) ? $this->buildDsn($this->getDefaultArg($app, 'driver'), $dsn) : $dsn,
                 $username,
                 $password,
-                $options
+                $options,
+                $prefix
             );
             $this->setAttributes($pdo, $attributes);
 
