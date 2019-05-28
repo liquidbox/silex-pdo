@@ -10,8 +10,9 @@ namespace LiquidBox\Silex\Provider;
 use PDO;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use LegoW\ReconnectingPDO;
 
-class PDOExt extends PDO
+class PDOExt extends ReconnectingPDO
 {
     protected $_table_prefix;
     public function __construct($dsn, $user = null, $password = null, $driver_options = array(), $prefix = null)
