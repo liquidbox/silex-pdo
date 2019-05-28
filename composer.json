@@ -22,7 +22,8 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "silex/silex": "^2.0"
+        "silex/silex": "^2.0",
+        "legow/reconnecting-pdo": "^1.1"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.0",
